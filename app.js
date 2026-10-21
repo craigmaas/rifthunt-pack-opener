@@ -69,7 +69,7 @@
     sOver: $('s-over'), sSig: $('s-sig'), sUlt: $('s-ult'), hits: $('hits'), btnReset: $('btn-reset'),
     odds: $('odds-body'),
     modal: $('modal'), modalImg: $('modal-img'), modalName: $('modal-name'), modalMeta: $('modal-meta'),
-    modalPrice: $('modal-price'), modalLink: $('modal-link'), modalClose: $('modal-close'), modalDismiss: $('modal-dismiss'),
+    modalPrice: $('modal-price'), modalLink: $('modal-link'), modalBuy: $('modal-buy'), modalClose: $('modal-close'), modalDismiss: $('modal-dismiss'),
   };
 
   // ---------- State ----------
@@ -86,13 +86,14 @@
       id: c.id, name: c.name, type: c.type, rarity: c.rarity, variant: c.variant,
       cn: c.collector_number, energy: c.energy, artist: c.artist, set: c.set,
       img: c.images || {}, uri: c.rifthunt_uri,
+      tcg: (c.purchase_uris && c.purchase_uris.tcgplayer) || (c.tcg_id ? `https://www.tcgplayer.com/product/${c.tcg_id}` : null),
       pf: p.foil && p.foil.market != null ? p.foil.market : null,
       pn: p.normal && p.normal.market != null ? p.normal.market : null,
     };
   }
 
   async function fetchSet(code) {
-    const key = 'rpo:set:' + code;
+    const key = 'rpo:set:v2:' + code; // bump the version when slim() gains fields
     try {
       const cached = JSON.parse(localStorage.getItem(key) || 'null');
       if (cached && Date.now() - cached.t < CACHE_TTL && Array.isArray(cached.cards) && cached.cards.length) {
@@ -234,7 +235,7 @@
       if (p.cat === 'signature') stats.sig += 1;
       if (p.cat === 'ultimate') stats.ult += 1;
       if (HIT_RANK[p.cat] >= 2) {
-        stats.hits.unshift({ name: p.card.name, cat: p.cat, img: p.card.img.small, set: p.card.set, cn: p.card.cn, value: p.value, foil: p.foil, id: p.card.id, type: p.card.type });
+        stats.hits.unshift({ name: p.card.name, cat: p.cat, img: p.card.img.small, set: p.card.set, cn: p.card.cn, value: p.value, foil: p.foil, id: p.card.id, type: p.card.type, tcg: p.card.tcg || null });
         if (stats.hits.length > 60) stats.hits.length = 60;
       }
     });
@@ -261,7 +262,7 @@
       d.className = 'mini hit r-' + RARITY_CLASS[h.cat] + (h.type === 'Battlefield' ? ' landscape' : '');
       d.title = `${h.name} · ${LABEL[h.cat]} · ${money(h.value)}`;
       d.innerHTML = `<img loading="lazy" src="${h.img || ''}" alt="${esc(h.name)}">`;
-      d.addEventListener('click', () => showModal({ card: { name: h.name, img: { large: upscale(h.img) }, set: h.set, cn: h.cn, uri: null, rarity: '', type: h.type || '' }, cat: h.cat, foil: h.foil, value: h.value }));
+      d.addEventListener('click', () => showModal({ card: { name: h.name, img: { large: upscale(h.img) }, set: h.set, cn: h.cn, uri: null, rarity: '', type: h.type || '', tcg: h.tcg || null }, cat: h.cat, foil: h.foil, value: h.value }));
       el.hits.appendChild(d);
     });
   }
@@ -386,6 +387,8 @@
     if (c.uri) { el.modalLink.href = 'https://rifthunt.com' + c.uri; el.modalLink.hidden = false; }
     else if (c.set && c.cn) { el.modalLink.href = `https://rifthunt.com/cards/${c.set}/${c.cn}/`; el.modalLink.hidden = false; }
     else el.modalLink.hidden = true;
+    if (c.tcg) { el.modalBuy.href = c.tcg; el.modalBuy.hidden = false; }
+    else { el.modalBuy.href = 'https://www.tcgplayer.com/search/riftbound/product?q=' + encodeURIComponent(displayName(c)); el.modalBuy.hidden = false; }
     el.modal.hidden = false;
   }
   function hideModal() { el.modal.hidden = true; el.modalImg.src = ''; }

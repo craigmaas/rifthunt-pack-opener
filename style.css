@@ -210,4 +210,8 @@ details.odds p { font-size: .8rem; color: var(--muted); }
 .modal-card img { width: 100%; border-radius: 4.5%; display: block; align-self: center; }
 .modal-info h3 { margin: 0 0 6px; color: var(--gold2); }
 .modal-info p { margin: 6px 0; color: var(--muted); font-size: .9rem; }
+.modal-links { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 !important; }
+.modal-links a { display: inline-block; padding: 7px 12px; border-radius: 6px; border: 1px solid var(--line); text-decoration: none; color: var(--text); }
+.modal-links a:hover { border-color: var(--teal); }
+.modal-links a.buy { background: linear-gradient(180deg, #d6b676, #a8884a); color: #1a1407; border-color: #e9cf95; font-weight: 600; }
 @media (max-width: 600px) { .modal-card { grid-template-columns: 1fr; } }
