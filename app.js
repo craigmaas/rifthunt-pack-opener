@@ -61,7 +61,7 @@
   // ---------- DOM ----------
   const $ = (id) => document.getElementById(id);
   const el = {
-    setSelect: $('set-select'), btnPack: $('btn-pack'), btnBox: $('btn-box'), btnReveal: $('btn-reveal'),
+    setSelect: $('set-select'), btnPack: $('btn-pack'), btnBox: $('btn-box'),
     status: $('status'), packWrap: $('pack-wrap'), packArt: $('pack-art'), packSetName: $('pack-set-name'),
     grid: $('pack-grid'), boxView: $('box-view'),
     packValue: $('pack-value'), packBest: $('pack-best'),
@@ -286,7 +286,6 @@
     el.packWrap.hidden = false;
     el.grid.hidden = true;
     el.boxView.hidden = true;
-    el.btnReveal.hidden = true;
   }
 
   function cardNode(pull, i) {
@@ -302,22 +301,20 @@
       <span class="tag">${LABEL[pull.cat]}${pull.foil && !['epic','alt','overnumbered','signature','ultimate','altrune'].includes(pull.cat) ? ' · Foil' : ''}</span>
       <span class="price">${pull.value ? money(pull.value) : '–'}</span>`;
     node.addEventListener('click', () => {
-      if (!node.classList.contains('flipped')) { node.classList.add('flipped'); afterFlip(); }
-      else showModal(pull);
+      if (node.classList.contains('flipped')) showModal(pull);
     });
     return node;
   }
 
-  function afterFlip() {
-    const all = el.grid.querySelectorAll('.card');
-    const flipped = el.grid.querySelectorAll('.card.flipped');
-    if (all.length && flipped.length === all.length) el.btnReveal.hidden = true;
-  }
-
-  function revealAll() {
-    const cards = Array.from(el.grid.querySelectorAll('.card:not(.flipped)'));
-    cards.forEach((n, i) => setTimeout(() => n.classList.add('flipped'), i * 120));
-    el.btnReveal.hidden = true;
+  // Cards deal face-down, then flip over one after another.
+  let revealTimers = [];
+  function autoReveal() {
+    revealTimers.forEach(clearTimeout);
+    revealTimers = [];
+    const cards = Array.from(el.grid.querySelectorAll('.card'));
+    cards.forEach((n, i) => {
+      revealTimers.push(setTimeout(() => n.classList.add('flipped'), 350 + i * 160));
+    });
   }
 
   function renderPack(pulls) {
@@ -326,7 +323,7 @@
     el.packWrap.hidden = true;
     el.boxView.hidden = true;
     el.grid.hidden = false;
-    el.btnReveal.hidden = false;
+    autoReveal();
     const total = pulls.reduce((a, p) => a + p.value, 0);
     const best = bestOf(pulls);
     el.packValue.textContent = money(total);
@@ -368,7 +365,6 @@
     });
     el.packWrap.hidden = true;
     el.grid.hidden = true;
-    el.btnReveal.hidden = true;
     el.boxView.hidden = false;
     const bestAll = bestOf(all);
     el.packValue.textContent = money(total) + ' (box)';
@@ -422,7 +418,7 @@
       currentPack = openPack(currentSet, pool);
       recordPack(currentPack);
       renderPack(currentPack);
-      setStatus(`${currentSet.name} booster · click cards to flip them, or press R to reveal all.`);
+      setStatus(`${currentSet.name} booster · click any card to enlarge it. Press N for another pack.`);
     } catch (err) {
       setStatus('Could not load card data: ' + err.message, true);
       showPackArt();
@@ -475,7 +471,6 @@
     el.btnPack.addEventListener('click', doOpenPack);
     el.packArt.addEventListener('click', doOpenPack);
     el.btnBox.addEventListener('click', doOpenBox);
-    el.btnReveal.addEventListener('click', revealAll);
     el.btnReset.addEventListener('click', resetStats);
     el.modalClose.addEventListener('click', hideModal);
     el.modalDismiss.addEventListener('click', hideModal);
@@ -485,7 +480,6 @@
       if (!el.modal.hidden) return;
       const k = e.key.toLowerCase();
       if (k === 'n') doOpenPack();
-      if (k === 'r') revealAll();
       if (k === 'b') doOpenBox();
     });
 
