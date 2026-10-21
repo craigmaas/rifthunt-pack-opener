@@ -234,7 +234,7 @@
       if (p.cat === 'signature') stats.sig += 1;
       if (p.cat === 'ultimate') stats.ult += 1;
       if (HIT_RANK[p.cat] >= 2) {
-        stats.hits.unshift({ name: p.card.name, cat: p.cat, img: p.card.img.small, set: p.card.set, cn: p.card.cn, value: p.value, foil: p.foil, id: p.card.id });
+        stats.hits.unshift({ name: p.card.name, cat: p.cat, img: p.card.img.small, set: p.card.set, cn: p.card.cn, value: p.value, foil: p.foil, id: p.card.id, type: p.card.type });
         if (stats.hits.length > 60) stats.hits.length = 60;
       }
     });
@@ -258,10 +258,10 @@
     const sorted = stats.hits.slice().sort((a, b) => (HIT_RANK[b.cat] - HIT_RANK[a.cat]) || (b.value - a.value));
     sorted.forEach((h) => {
       const d = document.createElement('div');
-      d.className = 'mini hit r-' + RARITY_CLASS[h.cat];
+      d.className = 'mini hit r-' + RARITY_CLASS[h.cat] + (h.type === 'Battlefield' ? ' landscape' : '');
       d.title = `${h.name} · ${LABEL[h.cat]} · ${money(h.value)}`;
       d.innerHTML = `<img loading="lazy" src="${h.img || ''}" alt="${esc(h.name)}">`;
-      d.addEventListener('click', () => showModal({ card: { name: h.name, img: { large: upscale(h.img) }, set: h.set, cn: h.cn, uri: null, rarity: '', type: '' }, cat: h.cat, foil: h.foil, value: h.value }));
+      d.addEventListener('click', () => showModal({ card: { name: h.name, img: { large: upscale(h.img) }, set: h.set, cn: h.cn, uri: null, rarity: '', type: h.type || '' }, cat: h.cat, foil: h.foil, value: h.value }));
       el.hits.appendChild(d);
     });
   }
@@ -269,6 +269,8 @@
 
   // ---------- Rendering ----------
   function money(n) { return '$' + (Math.round(n * 100) / 100).toFixed(2); }
+  // Battlefields are printed landscape; RiftHunt serves them as landscape images.
+  function isLandscape(c) { return c.type === 'Battlefield'; }
   // Printed names carry the variant as a suffix; drop it when we show the variant label separately.
   function displayName(c) { return String(c.name || '').replace(/\s*\((Alternate Art|Overnumbered|Signature|Ultimate|[^()]*Special Art Card)\)\s*$/i, ''); }
   function bestOf(pulls) { return pulls.slice().sort((a, b) => ((HIT_RANK[b.cat] || 0) - (HIT_RANK[a.cat] || 0)) || (b.value - a.value))[0]; }
@@ -290,7 +292,7 @@
   function cardNode(pull, i) {
     const c = pull.card;
     const node = document.createElement('div');
-    node.className = `card r-${RARITY_CLASS[pull.cat]}${pull.foil ? ' foil' : ''}`;
+    node.className = `card r-${RARITY_CLASS[pull.cat]}${pull.foil ? ' foil' : ''}${isLandscape(c) ? ' landscape' : ''}`;
     node.style.animationDelay = `${i * 45}ms`;
     node.innerHTML = `
       <div class="card-inner">
@@ -356,7 +358,7 @@
       const row = wrap.querySelector('.row');
       pulls.forEach((p) => {
         const d = document.createElement('div');
-        d.className = `mini r-${RARITY_CLASS[p.cat]}${HIT_RANK[p.cat] >= 2 ? ' hit' : ''}`;
+        d.className = `mini r-${RARITY_CLASS[p.cat]}${HIT_RANK[p.cat] >= 2 ? ' hit' : ''}${isLandscape(p.card) ? ' landscape' : ''}`;
         d.title = `${p.card.name} · ${LABEL[p.cat]} · ${money(p.value)}`;
         d.innerHTML = `<img loading="lazy" src="${p.card.img.small || ''}" alt="${esc(p.card.name)}">`;
         d.addEventListener('click', () => showModal(p));

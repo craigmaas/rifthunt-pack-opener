@@ -139,6 +139,8 @@ select {
 .face.back::after { content: ""; width: 38%; aspect-ratio: 1; background: var(--gold); opacity: .8; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
 .face.front { transform: rotateY(180deg); background: #0b1a26; }
 .face.front img { width: 100%; height: 100%; display: block; object-fit: cover; }
+/* Landscape (Battlefield) images: fit, then turn sideways to fill the portrait slot. */
+.landscape .face.front img, .mini.landscape img { object-fit: contain; transform: rotate(90deg) scale(1.3965); transform-origin: 50% 50%; }
 .card.flipped .face.front { box-shadow: 0 0 0 2px var(--rc), 0 0 18px var(--rc-glow), 0 8px 20px rgba(0,0,0,.5); }
 
 .foil .face.front::after {
@@ -205,7 +207,7 @@ details.odds p { font-size: .8rem; color: var(--muted); }
 .modal { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; }
 .modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.75); }
 .modal-card { position: relative; display: grid; grid-template-columns: minmax(220px, 372px) 1fr; gap: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; max-width: 720px; width: calc(100% - 32px); max-height: calc(100vh - 32px); overflow: auto; }
-.modal-card img { width: 100%; border-radius: 4.5%; display: block; }
+.modal-card img { width: 100%; border-radius: 4.5%; display: block; align-self: center; }
 .modal-info h3 { margin: 0 0 6px; color: var(--gold2); }
 .modal-info p { margin: 6px 0; color: var(--muted); font-size: .9rem; }
 @media (max-width: 600px) { .modal-card { grid-template-columns: 1fr; } }
