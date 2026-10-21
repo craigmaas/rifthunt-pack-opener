@@ -19,6 +19,7 @@
   --radius: 10px;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { margin: 0; }
 body {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -202,7 +203,6 @@ details.odds p { font-size: .8rem; color: var(--muted); }
 
 /* Modal */
 .modal { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; }
-.modal[hidden] { display: none; }
 .modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.75); }
 .modal-card { position: relative; display: grid; grid-template-columns: minmax(220px, 372px) 1fr; gap: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; max-width: 720px; width: calc(100% - 32px); max-height: calc(100vh - 32px); overflow: auto; }
 .modal-card img { width: 100%; border-radius: 4.5%; display: block; }

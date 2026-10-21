@@ -269,6 +269,9 @@
 
   // ---------- Rendering ----------
   function money(n) { return '$' + (Math.round(n * 100) / 100).toFixed(2); }
+  // Printed names carry the variant as a suffix; drop it when we show the variant label separately.
+  function displayName(c) { return String(c.name || '').replace(/\s*\((Alternate Art|Overnumbered|Signature|Ultimate|[^()]*Special Art Card)\)\s*$/i, ''); }
+  function bestOf(pulls) { return pulls.slice().sort((a, b) => ((HIT_RANK[b.cat] || 0) - (HIT_RANK[a.cat] || 0)) || (b.value - a.value))[0]; }
   function esc(s) { return String(s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
   function setStatus(msg, isError) {
     el.status.textContent = msg;
@@ -323,9 +326,9 @@
     el.grid.hidden = false;
     el.btnReveal.hidden = false;
     const total = pulls.reduce((a, p) => a + p.value, 0);
-    const best = pulls.slice().sort((a, b) => (HIT_RANK[b.cat] || 0) - (HIT_RANK[a.cat] || 0) || b.value - a.value)[0];
+    const best = bestOf(pulls);
     el.packValue.textContent = money(total);
-    el.packBest.textContent = best ? `${best.card.name} (${LABEL[best.cat]})` : '–';
+    el.packBest.textContent = best ? `${displayName(best.card)} (${LABEL[best.cat]})` : '–';
   }
 
   function renderBox(packs) {
@@ -348,8 +351,8 @@
       const wrap = document.createElement('div');
       wrap.className = 'box-pack';
       const v = pulls.reduce((a, p) => a + p.value, 0);
-      const best = pulls.slice().sort((a, b) => (HIT_RANK[b.cat] || 0) - (HIT_RANK[a.cat] || 0) || b.value - a.value)[0];
-      wrap.innerHTML = `<h4>Pack ${i + 1} · ${money(v)} · best: ${esc(best.card.name)} (${LABEL[best.cat]})</h4><div class="row"></div>`;
+      const best = bestOf(pulls);
+      wrap.innerHTML = `<h4>Pack ${i + 1} · ${money(v)} · best: ${esc(displayName(best.card))} (${LABEL[best.cat]})</h4><div class="row"></div>`;
       const row = wrap.querySelector('.row');
       pulls.forEach((p) => {
         const d = document.createElement('div');
@@ -365,16 +368,16 @@
     el.grid.hidden = true;
     el.btnReveal.hidden = true;
     el.boxView.hidden = false;
-    const bestAll = all.slice().sort((a, b) => (HIT_RANK[b.cat] || 0) - (HIT_RANK[a.cat] || 0) || b.value - a.value)[0];
+    const bestAll = bestOf(all);
     el.packValue.textContent = money(total) + ' (box)';
-    el.packBest.textContent = bestAll ? `${bestAll.card.name} (${LABEL[bestAll.cat]})` : '–';
+    el.packBest.textContent = bestAll ? `${displayName(bestAll.card)} (${LABEL[bestAll.cat]})` : '–';
   }
 
   function showModal(pull) {
     const c = pull.card;
     el.modalImg.src = c.img.large || c.img.normal || c.img.small || '';
     el.modalImg.alt = c.name;
-    el.modalName.textContent = c.name;
+    el.modalName.textContent = displayName(c);
     const bits = [LABEL[pull.cat]];
     if (pull.foil && !['epic','alt','overnumbered','signature','ultimate','altrune'].includes(pull.cat)) bits.push('Foil');
     if (c.type) bits.push(c.type);
