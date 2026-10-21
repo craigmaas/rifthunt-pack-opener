@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Riftbound Pack Opener</title>
+  <meta name="description" content="Open simulated Riftbound TCG booster packs and boxes with real card images, community pull rates, and TCGplayer market values.">
+  <meta property="og:title" content="Riftbound Pack Opener">
+  <meta property="og:description" content="Simulated Riftbound booster packs with real card images and pull rates.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpolygon points='32,4 58,18 58,46 32,60 6,46 6,18' fill='%230b1a26' stroke='%23c8aa6e' stroke-width='4'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://api.rifthunt.com">
+  <link rel="preconnect" href="https://images.rifthunt.com">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="hex"></span>
+      <h1>Riftbound Pack Opener</h1>
+    </div>
+    <div class="controls">
+      <label class="field">
+        <span>Set</span>
+        <select id="set-select" aria-label="Choose a set"></select>
+      </label>
+      <button id="btn-pack" class="btn primary">Open a pack</button>
+      <button id="btn-box" class="btn">Open a box (24)</button>
+      <button id="btn-reveal" class="btn ghost" hidden>Reveal all</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="stage" id="stage" aria-live="polite">
+      <div class="status" id="status">Loading card data…</div>
+      <div class="pack-wrap" id="pack-wrap" hidden>
+        <button class="pack" id="pack-art" aria-label="Open pack">
+          <span class="pack-shine"></span>
+          <span class="pack-set" id="pack-set-name">Origins</span>
+          <span class="pack-label">Booster Pack</span>
+          <span class="pack-count">14 cards</span>
+          <span class="pack-hint">click to open</span>
+        </button>
+      </div>
+      <div class="pack-grid" id="pack-grid" hidden></div>
+      <div class="box-view" id="box-view" hidden></div>
+    </section>
+
+    <aside class="side">
+      <div class="panel">
+        <h2>This pack</h2>
+        <div class="kv" id="pack-summary">
+          <div><span>Value</span><b id="pack-value">–</b></div>
+          <div><span>Best pull</span><b id="pack-best">–</b></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Session</h2>
+          <button id="btn-reset" class="link">reset</button>
+        </div>
+        <div class="kv">
+          <div><span>Packs</span><b id="s-packs">0</b></div>
+          <div><span>Spent (≈$5/pack)</span><b id="s-spent">$0</b></div>
+          <div><span>Pulled value</span><b id="s-value">$0</b></div>
+          <div><span>Epics</span><b id="s-epic">0</b></div>
+          <div><span>Alt / Special</span><b id="s-alt">0</b></div>
+          <div><span>Overnumbered</span><b id="s-over">0</b></div>
+          <div><span>Signature</span><b id="s-sig">0</b></div>
+          <div><span>Ultimate</span><b id="s-ult">0</b></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Top hits</h2>
+        <div class="hits" id="hits"><p class="muted">Epics and showcase cards you pull will show up here.</p></div>
+      </div>
+      <details class="panel odds">
+        <summary>Pull-rate model</summary>
+        <div id="odds-body"></div>
+      </details>
+    </aside>
+  </main>
+
+  <footer class="foot">
+    <p>Unofficial fan project. Card data and images from the <a href="https://rifthunt.com/api/" target="_blank" rel="noopener">RiftHunt API</a>. Pull rates based on <a href="https://riftbound.gg/riftbound-card-rarity-guide-pull-rates/" target="_blank" rel="noopener">riftbound.gg</a> and community box data; they are estimates, not Riot's published odds. Riftbound and League of Legends are trademarks of Riot Games. Prices are TCGplayer market estimates via RiftHunt.</p>
+    <p class="muted">Keyboard: <kbd>N</kbd> new pack · <kbd>R</kbd> reveal all · <kbd>B</kbd> open a box</p>
+  </footer>
+
+  <div class="modal" id="modal" hidden>
+    <div class="modal-backdrop" id="modal-close"></div>
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <img id="modal-img" alt="">
+      <div class="modal-info">
+        <h3 id="modal-name"></h3>
+        <p id="modal-meta"></p>
+        <p id="modal-price"></p>
+        <p><a id="modal-link" target="_blank" rel="noopener">View on RiftHunt</a></p>
+        <button class="btn ghost" id="modal-dismiss">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
